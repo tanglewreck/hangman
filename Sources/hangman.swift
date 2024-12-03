@@ -5,9 +5,10 @@ import Darwin
 
 
 class Hangman {
-    let wordlist = ["banan", "citron", "plommon", "persika", "äpple"]
-    let hiddenChar = "_"
+    let wordlist = ["banan", "citron", "plommon", "persika", "äpple", "skurhink",
+    "fasan", "hund", "katt", "gul", "röd", "orange", "grön"  ]
 
+    let hiddenCharacter = "_"    // 
     var secretWord: String 
     var secretWordLen: Int
     var guessesLeft: Int = 10
@@ -15,6 +16,7 @@ class Hangman {
     var guesses: String = ""
     var correctGuesses = 0
 
+    // Game status
     enum Status {
         case winning
         case quitting
@@ -45,27 +47,24 @@ class Hangman {
     // later caught in the gameLoop() function)
     func makeGuess() {
         var guessedChar: String = ""
-        // var gotInput = false  // 
-
-        // while !gotInput {
         while guessedChar.isEmpty {
             print("Make a guess: ", terminator: "")
             if let input = readLine(strippingNewline: true) {
                 guard input != "quit" else {
+                    // User type "quit": set gameStatus to .quitting
                     gameStatus = .quitting
-                    break
+                    print("quitting")
+                    return 
                 }
                 guard !input.isEmpty else {
                     continue
                 }
                 guessedChar = String(input[input.startIndex])
-                // guessedChar = input[input.startIndex]
-                print("guessedChar: \(guessedChar)")
-                // gotInput = true
             } 
         }
 
-        let index = guesses.firstIndex(of: Character(guessedChar)) ?? nil
+        // Add the guessed character only if it's not been already guessed 
+        let index = guesses.firstIndex(of: Character(guessedChar.lowercased())) ?? nil  // returns nil if not found
         if index == nil {
             guesses.append(guessedChar.lowercased())
             guessesLeft -= 1
@@ -74,39 +73,62 @@ class Hangman {
     }
 
 
+    // checkGameStatus: Prints stuff
     func checkGameStatus() {
-        print("guessed characters: ", terminator: "")
-        for c in guesses {
-            print("\(c) ", terminator: "")
-        }
-        print()
 
+        if gameStatus == .quitting { doExitGame(Status.quitting) }
+
+        func printGuessed() {
+            // print already guessed characters
+            print("Guessed characters: ", terminator: "")
+            for c in guesses {
+                print("\(c) ", terminator: "")
+            }
+            print()
+        }
+
+        printGuessed()
+
+        // Count # of correct guesses, print those and print a "_" for 
+        // the rest of the (not guessed) characters.
         correctGuesses = 0
         for character in secretWord {
-            if guesses.firstIndex(of: character) != nil {
-                print("\(character) ", terminator:"")
+            if guesses.firstIndex(of: character) != nil {  
+                // character found in the secret word, so print it
+                // and increment # of correctly guessed characters
+                print("\(character) ", terminator:"")  
                 correctGuesses += 1
             } else {
-                print("_ ", terminator: "")
+                // character not found in the secret word:
+                // print a "_" character
+                print("\(hiddenCharacter) ", terminator: "")
             }
         }
         print()
-        print("number of guesses left: \(guessesLeft)")
-        print("correct guesses: \(correctGuesses)")
+
+        // check if the secret word has been corretly guessed and set 
+        // gameStatus accordingly
         if correctGuesses == secretWord.count {
-            gameStatus = .winning
-            doExitGame(gameStatus) 
+            // gameStatus = .winning
+            // doExitGame(gameStatus) 
+            doExitGame(Status.winning)
         }
+
+        print("Number of guesses left: \(guessesLeft)")
+        // print("correct guesses: \(correctGuesses)")
         print()
     }
 
 
+    // doExitGame(): Called when number of guesses have run out,
+    // if the user types "quit", or if the secret word has been
+    // correctly guessed (status set to 'winning')
     func doExitGame(_ status: Status = .quitting) {
         if status == .winning {
             print()
             print("Congratulations, you won!")
             print("The secret word was \(secretWord)")
-        } else if status == .playing && guessesLeft <= 0 {
+        } else if status == .losing {
             print("Game over")
         } else  if status == .quitting {
             print("Bye!")
@@ -115,12 +137,14 @@ class Hangman {
     }
 
 
+    // gameLoop(): Repeatedly ask user to make a guess until
+    // the number of guesses run out or the word is guessed.
     func gameLoop() {
         while guessesLeft > 0 {
             makeGuess()
             checkGameStatus()
         }
-        doExitGame()
+        doExitGame(Status.losing)
     }
 }
 
