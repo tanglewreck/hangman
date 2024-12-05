@@ -53,7 +53,6 @@ class Hangman {
                 guard input != "quit" else {
                     // User type "quit": set gameStatus to .quitting
                     gameStatus = .quitting
-                    print("quitting")
                     return 
                 }
                 // If input is empty, start over
