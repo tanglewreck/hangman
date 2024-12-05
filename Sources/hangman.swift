@@ -1,5 +1,7 @@
 import Foundation
 
+
+
 class Hangman {
     let wordlist = ["banan", "citron", "plommon", "persika", "äpple", "skurhink",
     "fasan", "hund", "katt", "gul", "röd", "orange", "grön"  ]
@@ -8,7 +10,6 @@ class Hangman {
     var secretWord: String 
     var secretWordLen: Int
     var guessesLeft: Int = 10
-    var numberOfCorrectGuesses: Int = 0
     var guesses: String = ""
     var correctGuesses = 0
 
@@ -111,8 +112,10 @@ class Hangman {
                     print("\(hiddenCharacter) ", terminator: "")
                 }
             }
+#if(DEBUG)
             print()
             print("correctGuesses: \(correctGuesses)  (secretWord.count: \(secretWord.count))")
+#endif
             if correctGuesses == secretWord.count { gameStatus = .winning }
             print()
         }
@@ -125,15 +128,15 @@ class Hangman {
         // check if the secret word has been corretly guessed and set 
         // gameStatus accordingly
         if correctGuesses == secretWord.count {
-            // gameStatus = .winning
-            // doExitGame(gameStatus) 
             gameStatus = .winning
             doExitGame()
         }
 
         print()
         print("Number of guesses left: \(guessesLeft)")
+#if(DEBUG)
         // print("correct guesses: \(correctGuesses)")
+#endif
         print()
     }
 
